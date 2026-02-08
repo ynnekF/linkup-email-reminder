@@ -98,11 +98,10 @@ fn main() {
 
     // Add turn information to email template
     let updated_email_template = format!(
-        "{}\n\n**This Week's Organizer**: {} (Turn {})\n\n---\nIt's {}'s turn to decide what we're doing this Wednesday!\n",
+        "{}\n\n**This Week's Organizer**: {} (Turn {})\n\n",
         email_template,
         current_turn_person.email,
         current_turn_person.turn,
-        current_turn_person.email.split('@').next().unwrap_or(&current_turn_person.email)
     );
 
     let mailer = create_mailer(organizer, credential).expect("Failed to create SMTP mailer");

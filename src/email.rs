@@ -78,10 +78,6 @@ pub fn pretty_print_email_details(
     let cc_list: Vec<&str> = recipients.iter().map(|r| r.email.as_str()).collect();
 
     println!("To (CC): {}", cc_list.join(", "));
-    println!(
-        "Current Turn: {} ({})",
-        current_turn_person.turn, current_turn_person.email
-    );
     println!("\nBody:");
     println!("{}", "-".repeat(40));
     println!("{}", email_template);
