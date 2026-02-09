@@ -50,15 +50,51 @@ This will be the body of your reminder email.
 
 ```bash
 # Run with info logging
-RUST_LOG=info cargo run
+RUST_LOG=info cargo run -- send
 
 # Run with debug logging
-RUST_LOG=debug cargo run
+RUST_LOG=debug cargo run -- send
 ```
 
-## Dependencies
+# TODO
+- [X] Implement cargo like package structure
+- [X] Implement clap cli
+- [ ] Automation
+- [ ] Better resource parsing
+- [ ] Ideas
+- [ ] Showtime scraper
 
-- `lettre` - SMTP email sending
-- `csv` - CSV file parsing
-- `serde` - Data serialization
-- `log` + `env_logger` - Structured logging
+
+## Project Structure
+
+Following cargo's CLI architecture pattern:
+
+```
+src/
+├── main.rs                    # Minimal entry point, sets up logging and delegates to CLI
+├── cli/
+│   ├── mod.rs                 # Main CLI entry point, argument parsing, command dispatch
+│   ├── args.rs                # Shared argument definitions and utilities
+│   └── commands/
+│       ├── mod.rs             # Lists builtin commands (builtin() -> Vec<Command>)
+│       ├── send.rs            # Send reminder emails (main functionality)
+│       ├── list.rs            # List recipients and their turn information
+│       ├── add/remove.rs      # TBD 
+└── core/
+    ├── mod.rs                 # Core module exports
+    ├── context.rs             # Global application context
+    ├── config.rs              # Configuration loading and management  
+    ├── types.rs               # Data structures (Recipient, etc.)
+    ├── errors.rs              # Custom error types and handling
+    ├── email/
+    │   ├── mod.rs            # Email module exports TBD
+    │   ├── sender.rs         # SMTP email sending logic TBD
+    │   └── template.rs       # Email template processing TBD
+    └── storage/
+        ├── mod.rs            # Storage module exports
+        ├── recipients.rs     # CSV recipient management TBD
+        ├── state.rs          # Turn state persistence
+        └── files.rs          # General file I/O utilities
+```
+
+

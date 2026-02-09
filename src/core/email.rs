@@ -1,9 +1,8 @@
-use crate::config::*;
-use crate::types::Recipient;
+use crate::core::config::*;
+use crate::core::types::Recipient;
 use lettre::transport::smtp::authentication::Credentials;
 use lettre::{Message, SmtpTransport, Transport};
 use log::{debug, error, info, warn};
-use std::collections::HashMap;
 
 pub fn send_bulk_email(
     recipients: &[Recipient],
@@ -54,33 +53,13 @@ pub fn send_bulk_email(
 pub fn create_mailer(
     organizer: &str,
     credential: &str,
-) -> Result<SmtpTransport, Box<dyn std::error::Error>> {
+) -> Result<SmtpTransport, crate::core::errors::CliError> {
     debug!("Creating SMTP mailer for: {}", organizer);
 
     let creds = Credentials::new(String::from(organizer), String::from(credential));
-    let mailer = SmtpTransport::relay(SMTP_SERVER)?
+    let mailer = SmtpTransport::relay(SMTP_SERVER)
+        .map_err(|e| crate::core::errors::CliError::from(e.to_string()))?
         .credentials(creds)
         .build();
     Ok(mailer)
-}
-
-/// Pretty print email details without using the logger
-pub fn pretty_print_email_details(
-    recipients: &[Recipient],
-    organizer: &str,
-    current_turn_person: &Recipient,
-    email_template: &str,
-) {
-    println!("\n{}", "=".repeat(60));
-    println!("From: {}", organizer);
-    println!("Subject: {}", EMAIL_SUBJECT);
-
-    let cc_list: Vec<&str> = recipients.iter().map(|r| r.email.as_str()).collect();
-
-    println!("To (CC): {}", cc_list.join(", "));
-    println!("\nBody:");
-    println!("{}", "-".repeat(40));
-    println!("{}", email_template);
-    println!("{}", "-".repeat(40));
-    println!("\n{}\n", "=".repeat(60));
 }
