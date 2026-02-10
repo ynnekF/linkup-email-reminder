@@ -1,9 +1,10 @@
-use crate::core::{errors::CliError, types::Recipient, Context};
+use crate::core::{config::*, errors::CliError, types::Recipient};
 use log::{debug, info};
+use std::path::PathBuf;
 
 /// Load credentials from file
-pub fn load_credentials(context: &Context) -> Result<String, CliError> {
-    let file_path = context.resources_dir.join("credentials.txt");
+pub fn load_credentials() -> Result<String, CliError> {
+    let file_path = PathBuf::from(PRIVATE_DIR).join("credentials.txt");
 
     let content = std::fs::read_to_string(&file_path)?;
     let credentials: Vec<String> = content
@@ -18,8 +19,8 @@ pub fn load_credentials(context: &Context) -> Result<String, CliError> {
 }
 
 /// Load email template from file
-pub fn load_email_template(context: &Context) -> Result<String, CliError> {
-    let file_path = context.resources_dir.join("email_template.txt");
+pub fn load_email_template() -> Result<String, CliError> {
+    let file_path = PathBuf::from(RESOURCES_DIR).join("email_template.md");
     debug!("Reading email template from: {:?}", file_path);
     let content = std::fs::read_to_string(&file_path)?;
     info!("Email template loaded, {} characters", content.len());
@@ -27,8 +28,8 @@ pub fn load_email_template(context: &Context) -> Result<String, CliError> {
 }
 
 /// Load recipients from CSV file
-pub fn load_recipients(context: &Context) -> Result<Vec<Recipient>, CliError> {
-    let file_path = context.resources_dir.join("recipients.csv");
+pub fn load_recipients() -> Result<Vec<Recipient>, CliError> {
+    let file_path = PathBuf::from(PRIVATE_DIR).join("recipients.csv");
 
     if !file_path.exists() {
         return Err(format!("Recipients file not found: {}", file_path.display()).into());
@@ -50,4 +51,17 @@ pub fn load_recipients(context: &Context) -> Result<Vec<Recipient>, CliError> {
     }
 
     Ok(recipients)
+}
+
+pub fn load_changelog() -> Result<String, CliError> {
+    let file_path = PathBuf::from(DOCS_DIR).join("CHANGELOG.md");
+    debug!("Reading changelog from: {:?}", file_path);
+    let content = std::fs::read_to_string(&file_path)?;
+    info!("Changelog loaded, {} characters", content.len());
+
+    // Read only first 5 change entries (split by "## [")
+    let entries: Vec<&str> = content.split("## [").collect();
+    println!("Total changelog entries found: {}", entries.len());
+    let recent_entries = entries.into_iter().take(5).collect::<Vec<&str>>().into_iter().collect::<Vec<&str>>().join("## [");
+    Ok(recent_entries)
 }

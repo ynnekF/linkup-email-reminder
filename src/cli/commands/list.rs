@@ -29,7 +29,7 @@ pub fn exec(context: &mut Context, args: &ArgMatches) -> CliResult {
     let current_only = args.get_flag("current");
 
     // Load recipients from storage
-    let recipients = load_recipients(context)?;
+    let recipients = load_recipients()?;
     let current_turn = load_current_turn(context)?;
 
     if current_only {

@@ -1,7 +1,8 @@
 # Linkup Email Reminder
 
 A simple email notification script written in Rust for coordinating weekly group activities with turn-based organization.
-Chose Rust to get familiar with the language and ecosystem.
+
+Note: Built for a specific use case (mine)
 
 ## Features
 

@@ -1,0 +1,1 @@
+This is your friendly reminder about our weekly linkup.
