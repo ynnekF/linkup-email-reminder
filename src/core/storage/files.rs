@@ -62,6 +62,12 @@ pub fn load_changelog() -> Result<String, CliError> {
     // Read only first 5 change entries (split by "## [")
     let entries: Vec<&str> = content.split("## [").collect();
     println!("Total changelog entries found: {}", entries.len());
-    let recent_entries = entries.into_iter().take(5).collect::<Vec<&str>>().into_iter().collect::<Vec<&str>>().join("## [");
+    let recent_entries = entries
+        .into_iter()
+        .take(5)
+        .collect::<Vec<&str>>()
+        .into_iter()
+        .collect::<Vec<&str>>()
+        .join("## [");
     Ok(recent_entries)
 }

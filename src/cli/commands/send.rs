@@ -1,5 +1,5 @@
 use crate::core::config::*;
-use crate::core::email::{create_mailer, build_email, send_bulk_email};
+use crate::core::email::{build_email, create_mailer, send_bulk_email};
 use crate::core::storage::files::{load_credentials, load_recipients};
 use crate::core::storage::state::{get_next_turn, load_current_turn, save_current_turn};
 use crate::core::util::io::{get_user_confirmation, pretty_print_email_details};
@@ -16,12 +16,14 @@ pub fn cli() -> Command<'static> {
                 .long("include-ideas")
                 .short('i')
                 .help("Include ideas in the email notification")
-                .action(clap::ArgAction::SetFalse))
+                .action(clap::ArgAction::SetFalse),
+        )
         .arg(
             Arg::new("debug")
                 .long("debug")
                 .help("Show email template and quit")
-                .action(clap::ArgAction::SetTrue))
+                .action(clap::ArgAction::SetTrue),
+        )
 }
 
 pub fn exec(context: &mut Context, args: &ArgMatches) -> CliResult {
@@ -55,12 +57,7 @@ pub fn exec(context: &mut Context, args: &ArgMatches) -> CliResult {
     let credential = load_credentials()?;
     let mailer = create_mailer(organizer, &credential)?;
 
-    pretty_print_email_details(
-        &recipients,
-        organizer,
-        current_turn_person,
-        &email_template,
-    );
+    pretty_print_email_details(&recipients, organizer, current_turn_person, &email_template);
 
     if debug {
         info!("Debug mode - email template shown above, quitting without sending");
