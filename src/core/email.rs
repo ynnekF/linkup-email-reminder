@@ -154,9 +154,12 @@ mod tests {
         assert!(hours_until >= 0);
         assert!(hours_until <= 168);
         
-        // If it's currently Tuesday evening (e.g., 7 PM), hours_until should be less than 24
-        if now.weekday() == Weekday::Tue && now.hour() >= 19 {
-            assert!(hours_until < 24, "On Tuesday evening, next Wednesday should be less than 24 hours away");
+        // The key fix: on any day except Wednesday at midnight,
+        // hours until next Wednesday should reflect going to midnight, not the same time.
+        // For example, at 7 PM Tuesday, should be ~5 hours (to midnight), not ~29 hours (to 7 PM Wed)
+        if now.weekday() == Weekday::Tue {
+            // On Tuesday, next Wednesday is always less than 24 hours away (0-24 hours)
+            assert!(hours_until < 24, "On Tuesday, next Wednesday midnight should be less than 24 hours away, got {}", hours_until);
         }
     }
 }
