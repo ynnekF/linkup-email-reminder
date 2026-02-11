@@ -7,7 +7,7 @@ use lettre::transport::smtp::authentication::Credentials;
 use lettre::{Message, SmtpTransport, Transport};
 use log::{debug, error, info, warn};
 
-/// Calculate the date of the next Wednesday
+/// Calculate the date of the next Wednesday at midnight
 pub fn get_next_wednesday() -> DateTime<Local> {
     let now = Local::now();
     let current_weekday = now.weekday();
@@ -22,7 +22,13 @@ pub fn get_next_wednesday() -> DateTime<Local> {
         Weekday::Tue => 1,
     };
 
-    now + Duration::days(days_until_wednesday)
+    // Get the date at midnight (00:00:00) of the next Wednesday
+    let next_wednesday_date = now.date_naive() + Duration::days(days_until_wednesday);
+    next_wednesday_date
+        .and_hms_opt(0, 0, 0)
+        .unwrap()
+        .and_local_timezone(Local)
+        .unwrap()
 }
 
 pub fn build_email(
@@ -109,4 +115,52 @@ pub fn create_mailer(
         .credentials(creds)
         .build();
     Ok(mailer)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::Timelike;
+
+    #[test]
+    fn test_next_wednesday_is_at_midnight() {
+        let next_wednesday = get_next_wednesday();
+        
+        // Verify that the time is set to midnight (00:00:00)
+        assert_eq!(next_wednesday.hour(), 0);
+        assert_eq!(next_wednesday.minute(), 0);
+        assert_eq!(next_wednesday.second(), 0);
+        
+        // Verify that it's a Wednesday
+        assert_eq!(next_wednesday.weekday(), Weekday::Wed);
+    }
+
+    #[test]
+    fn test_next_wednesday_is_in_future() {
+        let now = Local::now();
+        let next_wednesday = get_next_wednesday();
+        
+        // Next Wednesday should always be in the future
+        assert!(next_wednesday > now);
+    }
+
+    #[test]
+    fn test_next_wednesday_hours_calculation() {
+        let now = Local::now();
+        let next_wednesday = get_next_wednesday();
+        let hours_until = (next_wednesday - now).num_hours();
+        
+        // Hours should be between 0 and 168 (7 days * 24 hours)
+        // and should never be negative
+        assert!(hours_until >= 0);
+        assert!(hours_until <= 168);
+        
+        // The key fix: on any day except Wednesday at midnight,
+        // hours until next Wednesday should reflect going to midnight, not the same time.
+        // For example, at 7 PM Tuesday, should be ~5 hours (to midnight), not ~29 hours (to 7 PM Wed)
+        if now.weekday() == Weekday::Tue {
+            // On Tuesday, next Wednesday is always less than 24 hours away (0-24 hours)
+            assert!(hours_until < 24, "On Tuesday, next Wednesday midnight should be less than 24 hours away, got {}", hours_until);
+        }
+    }
 }
