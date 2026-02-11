@@ -2,7 +2,7 @@ use crate::core::config::*;
 
 use crate::core::storage::files::{load_changelog, load_email_template};
 use crate::core::types::Recipient;
-use chrono::{DateTime, Datelike, Duration, Local, Timelike, Weekday};
+use chrono::{DateTime, Datelike, Duration, Local, Weekday};
 use lettre::transport::smtp::authentication::Credentials;
 use lettre::{Message, SmtpTransport, Transport};
 use log::{debug, error, info, warn};
@@ -120,6 +120,7 @@ pub fn create_mailer(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chrono::Timelike;
 
     #[test]
     fn test_next_wednesday_is_at_midnight() {
